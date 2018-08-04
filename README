@@ -1,0 +1,51 @@
+INTRODUCTION
+------------
+We are asked to implement a sort method that returns a List<Person> using standard Java 8 libraries.
+A quick look at the types of the fields tells us that they are all "Comparable", so this fairly
+straightforward approach seems reasonable:
+- Use the built in List.sort() method passing in a Comparator
+- To make Comparators, use Comparator.comparing() binding to the get method for the sort field
+
+CLASS DIRECTORY
+---------------
+Person
+ZortHelper: Where the static List<Person> sort(...) method lives
+Zorter, SimpleZorter, PairingZorter: Zorter interface and implementations
+ZortTest: Class with a main() used to set up and run quick tests
+
+THOUGHTS ABOUT DESIGN
+---------------------
+In general it is good practice to abstract service logic such as this using interfaces
+so that there is somewhat loose coupling to the actual implementation and we have more
+flexibility down the line. This is what I have chosen to do by introducing the Zorter
+interface.
+Additionally, in the interest of keeping the code clean and generally clutter free I
+chose an approach very light on field validation. Instead there are "sensible" defaults,
+such that even with nonsense inputs there is some "reasonable" result.
+
+IMPLEMENTATION NOTES
+--------------------
+For the Person class, I added a constructor for convenience and a toString() so printing
+is easier.
+SimpleZorter implements the sort logic; the bulk of the work is making the Comparator using
+Comparator.comparing().
+PairingZorter extends SimpleZorter with a bit more specialized knowledge; it knows which fields
+are "pairs." For example, it knows that lastName and firstName are pairs, such that if the
+main sorting field is lastName it is useful to use firstName as a subsequent sorting field
+and this will produce "better" results.
+
+TESTING
+-------
+ZortTest can be used to run basic tests.
+An interesting scenario to check out is how behavior changes if we switch out the Zorter
+implementation we use in ZortHelper. For example, with the test cases I have set up, for
+lastName asc sort, Emma Adams might come before Amy Adams with the SimpleZorter while
+PairingZorter ensures Amy Adams comes first.
+
+OTHER CONSIDERATIONS
+--------------------
+We can use reflection to write a generalized implementation for any "Comparable" field. For
+instance, if a new String field "zipCode" is added to person, such an approach will allow us
+to sort using this field without making any code changes to the sort implementation. But we
+will be sacrificing both readability and performance if we take this approach and that is
+generally a good indication not to do it unless we have good justification.
